@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../providers/notes_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -23,7 +24,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+    final notesProvider = Provider.of<NotesProvider>(context, listen: true);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     return AlertDialog(
@@ -43,14 +44,28 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
               );
               return;
             }
+            if (kDebugMode) {
+              print('Save button pressed');
+            }
+            if (kDebugMode) {
+              print('Note text: $noteText');
+            }
+            if (kDebugMode) {
+              print('User ID: ${authProvider.user?.uid}');
+            }
             if (widget.editingNote == null) {
               await notesProvider.addNote(noteText, authProvider.user!.uid);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Note added")));
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Note added")));
+              }
             } else {
               await notesProvider.updateNote(widget.editingNote!.id, noteText, authProvider.user!.uid);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Note updated")));
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Note updated")));
+              }
             }
-            Navigator.pop(context);
           },
           child: const Text("Save"),
         )

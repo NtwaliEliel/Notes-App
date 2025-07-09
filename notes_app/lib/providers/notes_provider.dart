@@ -8,19 +8,24 @@ class NotesProvider with ChangeNotifier {
   bool isLoading = false;
 
   Future<void> fetchNotes(String userId) async {
+    print('fetchNotes called');
     isLoading = true;
     notifyListeners();
     try {
       notes = await _firestoreService.fetchNotes(userId);
+      print('Fetched notes: ${notes.length}');
     } catch (e) {
       notes = [];
+      print('Error fetching notes: $e');
     } finally {
       isLoading = false;
       notifyListeners();
+      print('notifyListeners called');
     }
   }
 
   Future<void> addNote(String text, String userId) async {
+    print('addNote called');
     final note = Note(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       text: text,
@@ -28,6 +33,7 @@ class NotesProvider with ChangeNotifier {
     );
     await _firestoreService.addNote(note, userId);
     await fetchNotes(userId);
+    print('addNote finished');
   }
 
   Future<void> updateNote(String id, String text, String userId) async {
